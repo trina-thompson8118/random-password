@@ -1,101 +1,224 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { ToastContainer, toast, ToastOptions } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+/**
+ * Home Component: Main page of the application.
+ */
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // State to manage the slider value (password length)
+  const [sliderValue, setSliderValue] = useState(15);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // State for checkboxes
+  const [uppercaseAlpha, setUppercaseAlpha] = useState(true);
+  const [lowercaseAlpha, setLowercaseAlpha] = useState(true);
+  const [numbers, setNumbers] = useState(true);
+  const [specialCharacters, setSpecialCharacters] = useState(true);
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    generatePassword();
+  }, [sliderValue, uppercaseAlpha, lowercaseAlpha, numbers, specialCharacters]);
+
+  // Handle changes in the slider and update the state
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSliderValue(Number(event.target.value));
+  };
+
+  // Handle changes for each check box
+  const handleUppercaseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked && !lowercaseAlpha && !numbers && !specialCharacters) {
+      return;
+    }
+    setUppercaseAlpha(event.target.checked);
+  };
+
+  const handleLowercaseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked && !uppercaseAlpha && !numbers && !specialCharacters) {
+      return;
+    }
+    setLowercaseAlpha(event.target.checked);
+  };
+
+  const handleNumbersChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked && !uppercaseAlpha && !lowercaseAlpha && !specialCharacters) {
+      return;
+    }
+    setNumbers(event.target.checked);
+  };
+
+  const handleSpecialCharactersChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked && !uppercaseAlpha && !lowercaseAlpha && !numbers) {
+      return;
+    }
+    setSpecialCharacters(event.target.checked);
+  };
+
+  // Function for generating new random password
+  const generatePassword = () => {
+    const mixedList: (string | number)[] = [];
+
+    if (uppercaseAlpha) {
+      const uppercaseCharacters: string[] = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+      mixedList.push(...uppercaseCharacters);
+    }
+    if (lowercaseAlpha) {
+      const lowercaseCharacters: string[] = Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i));
+      mixedList.push(...lowercaseCharacters);
+    }
+    if (numbers) {
+      const numericCharacters: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      mixedList.push(...numericCharacters);
+    }
+    if (specialCharacters) {
+      const specialCharacters: string[] = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_",];
+      mixedList.push(...specialCharacters);
+    }
+
+    // Generate a random password of the desired length
+    let generatedPassword = "";
+    for (let i = 0; i < sliderValue; i++) {
+      const randomIndex = Math.floor(Math.random() * mixedList.length);
+      generatedPassword += mixedList[randomIndex];
+    }
+
+    // Update the password state
+    setPassword(generatedPassword);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(password);
+    const toastOptions: ToastOptions = {
+      position: "bottom-right",
+      autoClose: 2000, // Close after 2 seconds
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      className: "text-sm",
+    };
+    toast.success("Password copied to clipboard!", toastOptions);
+  };
+
+  return (
+    <div className="flex justify-center h-screen px-4">
+      <div className="max-w-xl w-full">
+        {/* Logo */}
+        <div className="flex justify-center items-center p-4">
+          <img
+            src="/password_logo.jpg"
+            alt="Random Password Generator"
+            className="max-w-[300px] w-full h-auto sm:max-w-[400px]"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Title */}
+        <h1 className="md:text-3xl text-lg font-extrabold pb-2 text-center">
+          Random Password Generator
+        </h1>
+        <p className="text-center text-sm sm:text-base text-gray-700">
+          Create strong and secure passwords to keep your account safe online.
+        </p>
+
+        {/* Password Configuration Form */}
+        <form>
+          {/* Password Input */}
+          <div className="relative py-5">
+            <input
+              className="block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 pr-16"
+              name="generatedPassword"
+              readOnly
+              value={password}
+            />
+            {/* Refresh Icon */}
+            <RefreshIcon
+              onClick={generatePassword}
+              className="absolute right-12 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+            />
+            {/* Copy Icon */}
+            <ContentCopyIcon
+              onClick={copyToClipboard}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
+            />
+          </div>
+
+          {/* Slider for Password Length */}
+          <div className="mb-4">
+            <label
+              htmlFor="lengthSlider"
+              className="block mb-2 text-sm font-medium text-gray-700"
+            >
+              Password Length: {sliderValue}
+            </label>
+            <input
+              id="lengthSlider"
+              type="range"
+              min="8"
+              max="32"
+              value={sliderValue}
+              onChange={handleSliderChange}
+              className="w-full appearance-none h-3 bg-blue-500 rounded-full cursor-pointer"
+            />
+          </div>
+
+          {/* Checkbox Options */}
+          <div className="flex flex-col sm:flex-row">
+            <div className="flex-none mb-2 sm:mb-0 sm:mr-5">
+              <span className="block text-sm font-medium text-gray-700">
+                Characters used:
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:flex sm:grow">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="uppercaseAlpha"
+                  checked={uppercaseAlpha}
+                  onChange={handleUppercaseChange}
+                  className="mr-2"
+                />
+                ABC
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="lowercaseAlpha"
+                  checked={lowercaseAlpha}
+                  onChange={handleLowercaseChange}
+                  className="mr-2"
+                />
+                abc
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="numbers"
+                  checked={numbers}
+                  onChange={handleNumbersChange}
+                  className="mr-2"
+                />
+                123
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="specialCharacters"
+                  checked={specialCharacters}
+                  onChange={handleSpecialCharactersChange}
+                  className="mr-2"
+                />
+                !@#
+              </label>
+            </div>
+          </div>
+        </form>
+
+        {/* Toast Container */}
+        <ToastContainer />
+      </div>
     </div>
   );
 }
