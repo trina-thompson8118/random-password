@@ -2,6 +2,8 @@
 
 A **Random Password Generator** built using **React**, **Next.js**, **Tailwind CSS**, and **Material-UI Icons**. This application allows users to generate strong, secure passwords with customizable options for length and character composition. The app is mobile-friendly and includes toast notifications for enhanced user experience.
 
+For a demo of this please visit [DEMO](https://random-password-pn9wfv5dv-trina-thompsons-projects.vercel.app/).
+
 ## Features
 
 - Generate secure passwords of customizable length (8–32 characters).
